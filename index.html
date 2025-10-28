@@ -4,19 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pixel Overlay</title>
-  <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body {
       background: transparent;
       user-select: none;
-      font-family: "Inter", sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
       margin: 0;
       padding: 0;
-    }
-    .pixel-icon {
-      width: 28px;
-      height: 28px;
-      image-rendering: pixelated;
     }
     .pixel-container {
       position: fixed;
@@ -24,117 +18,42 @@
       right: 25px;
       display: flex;
       align-items: center;
-      gap: 8px;
-      background: rgba(0, 0, 0, 0.55);
+      gap: 10px;
+      background: rgba(0, 0, 0, 0.6);
       border-radius: 8px;
-      padding: 8px 12px;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      box-shadow: 0 0 6px rgba(0, 0, 0, 0.3);
+      padding: 10px 16px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
     }
     .pixel-amount {
       color: #3cff00;
-      font-size: 18px;
-      font-weight: 600;
-      text-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
+      font-size: 20px;
+      font-weight: 700;
+      text-shadow: 0 0 8px rgba(60, 255, 0, 0.5);
+      letter-spacing: 0.5px;
+    }
+    .pixel-label {
+      color: #ffffff;
+      font-size: 14px;
+      opacity: 0.9;
     }
   </style>
 </head>
 <body>
-  <div id="pixel-overlay" class="pixel-container">
-    <span id="pixel-amount" class="pixel-amount">Loading...</span>
+  <div class="pixel-container">
+    <span class="pixel-amount" id="pixel-amount">0</span>
+    <span class="pixel-label">Pixels</span>
   </div>
   
   <script>
-    console.log('[PixelOverlay] Script loaded');
+    // Hole Pixels aus URL-Parameter
+    const params = new URLSearchParams(window.location.search);
+    const pixels = params.get("pixels") || "0";
     
-    // Warte bis DOM vollständig geladen ist
-    document.addEventListener('DOMContentLoaded', function() {
-      console.log('[PixelOverlay] DOM loaded');
-      
-      const pixelAmount = document.getElementById("pixel-amount");
-      
-      if (!pixelAmount) {
-        console.error('[PixelOverlay] pixel-amount Element nicht gefunden!');
-        return;
-      }
-      
-      // Funktion zum Aktualisieren der Pixel-Anzeige
-      function updatePixels(pixels) {
-        console.log('[PixelOverlay] Updating pixels to:', pixels);
-        pixelAmount.textContent = pixels;
-      }
-      
-      // METHODE 1: URL Parameter (Initial Load)
-      const params = new URLSearchParams(window.location.search);
-      const initialPixels = params.get("pixels");
-      if (initialPixels) {
-        console.log('[PixelOverlay] Found pixels in URL:', initialPixels);
-        updatePixels(initialPixels);
-      }
-      
-      // METHODE 2: Standard window.postMessage
-      window.addEventListener('message', function(event) {
-        console.log('[PixelOverlay] Received window message:', event);
-        console.log('[PixelOverlay] Message data:', event.data);
-        console.log('[PixelOverlay] Message origin:', event.origin);
-        
-        try {
-          let data = event.data;
-          
-          // Falls es ein String ist, versuche zu parsen
-          if (typeof data === 'string') {
-            data = JSON.parse(data);
-          }
-          
-          if (data.pixels !== undefined) {
-            console.log('[PixelOverlay] ✓ Updating from window message:', data.pixels);
-            updatePixels(data.pixels);
-          }
-        } catch (e) {
-          console.error('[PixelOverlay] Error parsing message:', e);
-        }
-      });
-      
-      // METHODE 3: Feather-spezifische Message API (falls vorhanden)
-      // Manche Clients verwenden ein globales Objekt
-      if (window.feather) {
-        console.log('[PixelOverlay] Feather API detected');
-        window.feather.onMessage = function(data) {
-          console.log('[PixelOverlay] Received feather message:', data);
-          try {
-            const parsed = JSON.parse(data);
-            if (parsed.pixels !== undefined) {
-              updatePixels(parsed.pixels);
-            }
-          } catch (e) {
-            console.error('[PixelOverlay] Error:', e);
-          }
-        };
-      }
-      
-      // METHODE 4: Custom Event Listener (alternative API)
-      document.addEventListener('featherMessage', function(event) {
-        console.log('[PixelOverlay] Received feather custom event:', event.detail);
-        try {
-          const data = JSON.parse(event.detail);
-          if (data.pixels !== undefined) {
-            updatePixels(data.pixels);
-          }
-        } catch (e) {
-          console.error('[PixelOverlay] Error:', e);
-        }
-      });
-      
-      console.log('[PixelOverlay] ✓ Initialized - listening for messages');
-      
-      // Test: Setze nach 2 Sekunden einen Testwert
-      setTimeout(function() {
-        console.log('[PixelOverlay] Test: Setting test value');
-        updatePixels('TEST-1234');
-      }, 2000);
-    });
+    // Setze Pixel-Wert
+    document.getElementById("pixel-amount").textContent = pixels;
     
-    console.log('[PixelOverlay] Script fully loaded');
+    console.log('[PixelOverlay] Loaded with pixels:', pixels);
   </script>
 </body>
 </html>
