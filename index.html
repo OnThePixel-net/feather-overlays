@@ -2,38 +2,73 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pixel Overlay</title>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { background: transparent; font-family: Arial, sans-serif; }
-    #overlay {
+    body {
+      background: transparent;
+      user-select: none;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    .pixel-container {
       position: fixed;
       bottom: 20px;
       right: 25px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
       background: rgba(0, 0, 0, 0.6);
       border-radius: 8px;
       padding: 10px 16px;
       border: 1px solid rgba(255, 255, 255, 0.15);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
     }
-    #pixels {
+    .pixel-amount {
       color: #3cff00;
       font-size: 20px;
-      font-weight: bold;
+      font-weight: 700;
+      text-shadow: 0 0 8px rgba(60, 255, 0, 0.5);
+      letter-spacing: 0.5px;
+    }
+    .pixel-label {
+      color: #ffffff;
+      font-size: 14px;
+      opacity: 0.9;
     }
   </style>
 </head>
 <body>
-  <div id="overlay">
-    <span id="pixels">0</span>
-    <span style="color: white; font-size: 14px; margin-left: 10px;">Pixels</span>
+  <div class="pixel-container">
+    <span class="pixel-amount" id="pixel-amount">0</span>
+    <span class="pixel-label">Pixels</span>
   </div>
+  
   <script>
-    (function() {
-      const urlParams = new URLSearchParams(window.location.search);
-      const pixelValue = urlParams.get("pixels") || "0";
-      const elem = document.getElementById("pixels");
-      if (elem) elem.textContent = pixelValue;
-    })();
+    function initPixelDisplay() {
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const pixels = params.get("pixels") || "0";
+        
+        const pixelElement = document.getElementById("pixel-amount");
+        
+        if (pixelElement) {
+          pixelElement.textContent = pixels;
+          console.log('[PixelOverlay] Loaded with pixels:', pixels);
+        } else {
+          console.error('[PixelOverlay] Element "pixel-amount" not found');
+        }
+      } catch (error) {
+        console.error('[PixelOverlay] Error initializing:', error);
+      }
+    }
+    
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initPixelDisplay);
+    } else {
+      initPixelDisplay();
+    }
   </script>
 </body>
 </html>
