@@ -53,27 +53,5 @@
     <span class="pixel-amount" id="pixel-amount">0</span>
     <span class="pixel-label">Pixels</span>
   </div>
-  
-  <script>
-    (function() {
-      'use strict';
-      
-      try {
-        // Hole URL Parameter
-        var params = new URLSearchParams(window.location.search);
-        var pixels = params.get('pixels') || '0';
-        
-        // Setze Wert
-        var element = document.getElementById('pixel-amount');
-        if (element) {
-          element.textContent = pixels;
-        }
-        
-        console.log('Pixels loaded:', pixels);
-      } catch (e) {
-        console.error('Error:', e);
-      }
-    })();
-  </script>
 </body>
 </html>
