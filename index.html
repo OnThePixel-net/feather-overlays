@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pixel Overlay</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background: transparent;
+      user-select: none;
+      font-family: "Inter", sans-serif;
+    }
+    .pixel-icon {
+      width: 28px;
+      height: 28px;
+      image-rendering: pixelated;
+    }
+    .pixel-container {
+      position: fixed;
+      bottom: 20px;
+      right: 25px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(0, 0, 0, 0.55);
+      border-radius: 8px;
+      padding: 8px 12px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 0 6px rgba(0, 0, 0, 0.3);
+    }
+    .pixel-amount {
+      color: #3cff00;
+      font-size: 18px;
+      font-weight: 600;
+      text-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
+    }
+  </style>
+</head>
+<body>
+
+  <div id="pixel-overlay" class="pixel-container">
+    <span id="pixel-amount" class="pixel-amount">0</span>
+    <img src="https://onthepixel.net/pixel.png" alt="Pixel" class="pixel-icon">
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const pixelsParam = params.get("pixels") || 0;
+    const pixelAmount = document.getElementById("pixel-amount");
+    pixelAmount.textContent = pixelsParam;
+
+    window.addEventListener("popstate", () => {
+      const updated = new URLSearchParams(window.location.search);
+      const newValue = updated.get("pixels") || 0;
+      pixelAmount.textContent = newValue;
+    });
+  </script>
+
+</body>
+</html>
