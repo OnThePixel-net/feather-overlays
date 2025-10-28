@@ -41,10 +41,12 @@
 </head>
 <body>
   <div id="pixel-overlay" class="pixel-container">
-    <span id="pixel-amount" class="pixel-amount">0</span>
- </div>
+    <span id="pixel-amount" class="pixel-amount">Loading...</span>
+  </div>
   
   <script>
+    console.log('[PixelOverlay] Script loaded');
+    
     // Warte bis DOM vollständig geladen ist
     document.addEventListener('DOMContentLoaded', function() {
       console.log('[PixelOverlay] DOM loaded');
@@ -57,39 +59,82 @@
       }
       
       // Funktion zum Aktualisieren der Pixel-Anzeige
-      function updatePixels() {
-        const params = new URLSearchParams(window.location.search);
-        const pixels = params.get("pixels") || "0";
+      function updatePixels(pixels) {
         console.log('[PixelOverlay] Updating pixels to:', pixels);
         pixelAmount.textContent = pixels;
       }
       
-      // Initial update
-      updatePixels();
+      // METHODE 1: URL Parameter (Initial Load)
+      const params = new URLSearchParams(window.location.search);
+      const initialPixels = params.get("pixels");
+      if (initialPixels) {
+        console.log('[PixelOverlay] Found pixels in URL:', initialPixels);
+        updatePixels(initialPixels);
+      }
       
-      // Listen auf URL-Änderungen
-      window.addEventListener("popstate", function() {
-        console.log('[PixelOverlay] URL changed');
-        updatePixels();
-      });
-      
-      // Listen auf Messages vom Server (für sendPageMessage)
+      // METHODE 2: Standard window.postMessage
       window.addEventListener('message', function(event) {
-        console.log('[PixelOverlay] Received message:', event.data);
+        console.log('[PixelOverlay] Received window message:', event);
+        console.log('[PixelOverlay] Message data:', event.data);
+        console.log('[PixelOverlay] Message origin:', event.origin);
         
         try {
-          const data = JSON.parse(event.data);
+          let data = event.data;
+          
+          // Falls es ein String ist, versuche zu parsen
+          if (typeof data === 'string') {
+            data = JSON.parse(data);
+          }
+          
           if (data.pixels !== undefined) {
-            console.log('[PixelOverlay] Updating from message:', data.pixels);
-            pixelAmount.textContent = data.pixels;
+            console.log('[PixelOverlay] ✓ Updating from window message:', data.pixels);
+            updatePixels(data.pixels);
           }
         } catch (e) {
           console.error('[PixelOverlay] Error parsing message:', e);
         }
       });
       
-      console.log('[PixelOverlay] Initialized successfully');
+      // METHODE 3: Feather-spezifische Message API (falls vorhanden)
+      // Manche Clients verwenden ein globales Objekt
+      if (window.feather) {
+        console.log('[PixelOverlay] Feather API detected');
+        window.feather.onMessage = function(data) {
+          console.log('[PixelOverlay] Received feather message:', data);
+          try {
+            const parsed = JSON.parse(data);
+            if (parsed.pixels !== undefined) {
+              updatePixels(parsed.pixels);
+            }
+          } catch (e) {
+            console.error('[PixelOverlay] Error:', e);
+          }
+        };
+      }
+      
+      // METHODE 4: Custom Event Listener (alternative API)
+      document.addEventListener('featherMessage', function(event) {
+        console.log('[PixelOverlay] Received feather custom event:', event.detail);
+        try {
+          const data = JSON.parse(event.detail);
+          if (data.pixels !== undefined) {
+            updatePixels(data.pixels);
+          }
+        } catch (e) {
+          console.error('[PixelOverlay] Error:', e);
+        }
+      });
+      
+      console.log('[PixelOverlay] ✓ Initialized - listening for messages');
+      
+      // Test: Setze nach 2 Sekunden einen Testwert
+      setTimeout(function() {
+        console.log('[PixelOverlay] Test: Setting test value');
+        updatePixels('TEST-1234');
+      }, 2000);
     });
+    
+    console.log('[PixelOverlay] Script fully loaded');
   </script>
 </body>
 </html>
