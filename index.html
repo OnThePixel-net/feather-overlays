@@ -10,6 +10,8 @@
       background: transparent;
       user-select: none;
       font-family: "Inter", sans-serif;
+      margin: 0;
+      padding: 0;
     }
     .pixel-icon {
       width: 28px;
@@ -38,24 +40,57 @@
   </style>
 </head>
 <body>
-
   <div id="pixel-overlay" class="pixel-container">
     <span id="pixel-amount" class="pixel-amount">0</span>
     <img src="https://onthepixel.net/pixel.png" alt="Pixel" class="pixel-icon">
   </div>
-
+  
   <script>
-    const params = new URLSearchParams(window.location.search);
-    const pixelsParam = params.get("pixels") || 0;
-    const pixelAmount = document.getElementById("pixel-amount");
-    pixelAmount.textContent = pixelsParam;
-
-    window.addEventListener("popstate", () => {
-      const updated = new URLSearchParams(window.location.search);
-      const newValue = updated.get("pixels") || 0;
-      pixelAmount.textContent = newValue;
+    // Warte bis DOM vollständig geladen ist
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('[PixelOverlay] DOM loaded');
+      
+      const pixelAmount = document.getElementById("pixel-amount");
+      
+      if (!pixelAmount) {
+        console.error('[PixelOverlay] pixel-amount Element nicht gefunden!');
+        return;
+      }
+      
+      // Funktion zum Aktualisieren der Pixel-Anzeige
+      function updatePixels() {
+        const params = new URLSearchParams(window.location.search);
+        const pixels = params.get("pixels") || "0";
+        console.log('[PixelOverlay] Updating pixels to:', pixels);
+        pixelAmount.textContent = pixels;
+      }
+      
+      // Initial update
+      updatePixels();
+      
+      // Listen auf URL-Änderungen
+      window.addEventListener("popstate", function() {
+        console.log('[PixelOverlay] URL changed');
+        updatePixels();
+      });
+      
+      // Listen auf Messages vom Server (für sendPageMessage)
+      window.addEventListener('message', function(event) {
+        console.log('[PixelOverlay] Received message:', event.data);
+        
+        try {
+          const data = JSON.parse(event.data);
+          if (data.pixels !== undefined) {
+            console.log('[PixelOverlay] Updating from message:', data.pixels);
+            pixelAmount.textContent = data.pixels;
+          }
+        } catch (e) {
+          console.error('[PixelOverlay] Error parsing message:', e);
+        }
+      });
+      
+      console.log('[PixelOverlay] Initialized successfully');
     });
   </script>
-
 </body>
 </html>
