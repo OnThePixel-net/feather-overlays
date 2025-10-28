@@ -46,14 +46,35 @@
   </div>
   
   <script>
-    // Hole Pixels aus URL-Parameter
-    const params = new URLSearchParams(window.location.search);
-    const pixels = params.get("pixels") || "0";
+    // Warte bis DOM vollständig geladen ist
+    function initPixelDisplay() {
+      try {
+        // Hole Pixels aus URL-Parameter
+        const params = new URLSearchParams(window.location.search);
+        const pixels = params.get("pixels") || "0";
+        
+        // Finde Element mit Null-Check
+        const pixelElement = document.getElementById("pixel-amount");
+        
+        if (pixelElement) {
+          // Setze Pixel-Wert
+          pixelElement.textContent = pixels;
+          console.log('[PixelOverlay] Loaded with pixels:', pixels);
+        } else {
+          console.error('[PixelOverlay] Element "pixel-amount" not found');
+        }
+      } catch (error) {
+        console.error('[PixelOverlay] Error initializing:', error);
+      }
+    }
     
-    // Setze Pixel-Wert
-    document.getElementById("pixel-amount").textContent = pixels;
-    
-    console.log('[PixelOverlay] Loaded with pixels:', pixels);
+    // Führe aus wenn DOM bereit ist
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initPixelDisplay);
+    } else {
+      // DOM ist bereits geladen
+      initPixelDisplay();
+    }
   </script>
 </body>
 </html>
